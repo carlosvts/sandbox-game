@@ -176,7 +176,7 @@ void calculatePhysics(std::vector<Particle> &grid)
                 }
 
                 // if the under is iron, swipes horizontally
-                else if (under->type == IRON || under->type == WATER || under->type == SAND)
+                else if (under->type == IRON || under->type == WATER || under->type == SAND || under->type == GAS)
                 {
                     // variable to make more random where water will slip 
                     Particle* left = &grid.at(leftIndex);
@@ -236,6 +236,88 @@ void calculatePhysics(std::vector<Particle> &grid)
         else if(self->type == IRON)
         {
 
+        }
+        else if(self->type == GAS)
+        {
+            int indexAbove = i - GRID_WIDTH;
+            if (indexAbove < 0) { continue; }
+            Particle* above = &grid.at(indexAbove);
+ 
+            if(above->type == FIRE) { continue; }
+
+            if((above->type == VOID || above->type == WATER) && !above->wasUpdated)
+            {
+                TYPES previousType = above->type; 
+                above->type = GAS;
+                above->color = SKYBLUE;
+                above->exists = true;
+                above->wasUpdated = true;
+
+                if(previousType == WATER)
+                {
+                    self->type = WATER;
+                    self->color = BLUE;
+                }
+                else if(previousType == SAND)
+                {
+                    self->type = SAND;
+                    self->color = YELLOW;
+                }
+                else // void 
+                {
+                    self->type = VOID;
+                    self->color = BLACK;
+                    self->exists = false; 
+                }
+                self->wasUpdated = true;
+                continue;
+            }
+
+            bool canGoLeft = (i % GRID_WIDTH > 0);
+            bool canGoRight = (i % GRID_WIDTH <  GRID_WIDTH - 1);
+            int leftIndex = i - 1;
+            int rightIndex = i + 1;
+            int randomness = GetRandomValue(0, 1);
+            for(int attempts = 0; attempts < 2; attempts++)
+            {
+                // left and right
+                if(randomness == 1 && canGoLeft && leftIndex > 0)
+                {
+                    Particle* left = &grid.at(leftIndex);
+                    if (left->type == VOID)
+                    {
+                        // update new,  resets old 
+                        left->type = GAS;
+                        left->color = SKYBLUE;
+                        left->exists = true;
+                        left->wasUpdated = true; 
+
+                        self->type = VOID;
+                        self->color = BLACK;
+                        self->exists = false;
+                        self->wasUpdated = true;
+                        break;
+                    }
+                }
+                else if(randomness == 0 && canGoRight && rightIndex < static_cast<int>(grid.size()) - 1)
+                {
+                    Particle* right = &grid.at(rightIndex);
+                    if (right->type == VOID)
+                    {
+                        // update new, resets old 
+                        right->type = GAS;
+                        right->color = SKYBLUE;
+                        right->exists = true;
+                        right->wasUpdated = true;
+
+                        self->type = VOID;
+                        self->color = BLACK;
+                        self->exists = false;
+                        self->wasUpdated = true; 
+                        break;
+                    }
+                }
+            }
         }
     }
 }
