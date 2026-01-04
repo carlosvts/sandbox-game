@@ -28,7 +28,8 @@ int checkSelectedElement(int &currentElement)
     if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y + 35, BUTTON_WIDTH, BUTTON_HEIGHT},"WATER")) { return WATER; }
     if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y + 35 * 2, BUTTON_WIDTH, BUTTON_HEIGHT}, "FIRE")) { return FIRE; }
     if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y + 35 * 3, BUTTON_WIDTH, BUTTON_HEIGHT}, "IRON")) { return IRON; }
-    if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y   + 35 * 4, BUTTON_WIDTH, BUTTON_HEIGHT}, "VOID")) { return VOID; }
+    if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y + 35 * 4, BUTTON_WIDTH, BUTTON_HEIGHT}, "GAS")) { return GAS; }
+    if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y   + 35 * 5, BUTTON_WIDTH, BUTTON_HEIGHT}, "VOID")) { return VOID; }
     return currentElement; 
 }
 
@@ -73,6 +74,7 @@ void saveParticles(std::vector<Particle>&grid, int selectedElement)
             {
                 particle.type = GAS;
                 particle.color = SKYBLUE;
+                break;
             }
             default:
             {
@@ -115,9 +117,6 @@ void calculatePhysics(std::vector<Particle> &grid)
             Particle *other = &grid.at(index);
             if ((other->type == VOID || other->type == WATER) && !other->wasUpdated) 
             {
-                TYPES previousType = other->type; 
-                Color previousColor = other->color;
-
                 // if down is VOID
                 if (other->type == VOID)
                 {
