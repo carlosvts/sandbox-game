@@ -172,7 +172,7 @@ void calculatePhysics(std::vector<Particle> &grid)
                     self->color = BLACK;
                     self->exists = false;
                     continue;
-                    
+
                 }
 
                 // if the under is iron, swipes horizontally
@@ -243,7 +243,15 @@ void calculatePhysics(std::vector<Particle> &grid)
             if (indexAbove < 0) { continue; }
             Particle* above = &grid.at(indexAbove);
  
-            if(above->type == FIRE) { continue; }
+            // if gas matches fire, it becomes a gas 
+            if(above->type == FIRE)
+            {
+                self->type = FIRE;
+                self->color = RED;
+                self->exists = true;
+                self->wasUpdated = true;
+                continue;
+            }
 
             if((above->type == VOID || above->type == WATER) && !above->wasUpdated)
             {
