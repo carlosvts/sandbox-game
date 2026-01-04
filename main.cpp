@@ -1,3 +1,4 @@
+#include <ios>
 #include <vector>
 
 #include "utils.hpp"
@@ -68,6 +69,11 @@ void saveParticles(std::vector<Particle>&grid, int selectedElement)
                 particle.color = GRAY;
                 break;
             }
+            case GAS:
+            {
+                particle.type = GAS;
+                particle.color = SKYBLUE;
+            }
             default:
             {
                 particle.type = VOID;
@@ -93,34 +99,136 @@ void drawParticles(std::vector<Particle> &grid)
 void calculatePhysics(std::vector<Particle> &grid)
 {
     // reset update status
-    for (auto& particle : grid) { particle.wasUpdated = false; }
+    for (Particle& particle : grid) { particle.wasUpdated = false; }
 
     // calculate physics 
     for (int i = grid.size() - 1; i >= 0; --i)
     {
         Particle *self = &grid.at(i);
+        
+        if (self->wasUpdated) { continue; }
+
         if (self->type == SAND)
         {
             int index = i + GRID_WIDTH;
-            if (index > static_cast<int>(grid.size())) { continue; }
+            if (index > static_cast<int>(grid.size() - 1)) { continue; }
             Particle *other = &grid.at(index);
-            if ((other->type == VOID || !other->exists) && !other->wasUpdated) 
+            if ((other->type == VOID || other->type == WATER) && !other->wasUpdated) 
             {
-                other->type = self->type;
-                other->color = self->color;
-                other->exists = true;
-                other->rect.x = (index % GRID_WIDTH) * SCALE;
-                other->rect.y = (index / GRID_WIDTH) * SCALE;
-            
-                self->wasUpdated = false;
-                self->type = VOID;
-                self->color = BLACK;
-                self->exists = false; 
+                TYPES previousType = other->type; 
+                Color previousColor = other->color;
+
+                // if down is VOID
+                if (other->type == VOID)
+                {
+                    other->type = SAND;
+                    other->color = self->color;
+                    other->exists = true;
+                    other->rect.x = (index % GRID_WIDTH) * SCALE;
+                    other->rect.y = (index / GRID_WIDTH) * SCALE;
+                    other->wasUpdated = true; 
+
+                    self->type = VOID;
+                    self->color = BLACK;
+                    self->exists = false;
+                    self->wasUpdated = true;
+                }
+                else if(other->type == WATER)
+                {
+                    other->type = SAND;
+                    other->color = self->color;
+                    other->wasUpdated = true;
+
+                    self->type = WATER;
+                    self->color = BLUE;
+                    self->exists = true;
+                    self->wasUpdated = true;
+                }
             }
         }
         else if (self->type == WATER)
         {
+            int index = i + GRID_WIDTH;
+            // left, down, right 
+            int leftIndex = i - 1;
+            int rightIndex = i + 1;
+            if (leftIndex <= 0 || rightIndex >= static_cast<int>(grid.size()) || i <= 0 || i >= static_cast<int>(grid.size())) { continue; }
+            // std::vector<Particle*> others = {&grid.at(leftIndex), &grid.at(index), &grid.at(rightIndex)};
+           
+            if (index < static_cast<int>(grid.size()))
+            {
+                Particle* under = &grid.at(index);
+            
+                // if the under is void, just go down again
+                if ((under->type == VOID || !under->exists) && !under->wasUpdated)
+                {
+                    under->type = self->type;
+                    under->color = self->color;
+                    under->exists = true;
+                    under->rect.x= (index % GRID_WIDTH) * SCALE;
+                    under->rect.y = (index / GRID_WIDTH) * SCALE;
 
+                    self->wasUpdated = true;
+                    self->type = VOID;
+                    self->color = BLACK;
+                    self->exists = false;
+                    continue;
+                    
+                }
+
+                // if the under is iron, swipes horizontally
+                else if (under->type == IRON || under->type == WATER || under->type == SAND)
+                {
+                    // variable to make more random where water will slip 
+                    Particle* left = &grid.at(leftIndex);
+                    Particle* right = &grid.at(rightIndex);
+                    bool canGoLeft = (i % GRID_WIDTH > 0);
+                    bool canGoRight = (i % GRID_WIDTH < GRID_WIDTH - 1);
+
+                    int randomness = GetRandomValue(0, 1);
+                    for(int attempt = 0; attempt < 2; attempt++)
+                    {
+                        if (randomness == 0 && canGoLeft && leftIndex > 0)
+                        {
+                            // check if left block is empty
+                            if (left->type == VOID)
+                            {
+                                left->type = WATER;
+                                left->color = BLUE; 
+                                left->exists = true;
+                                left->rect.x = ( (i - 1) % GRID_WIDTH) * SCALE;
+                                left->rect.y = (i / GRID_WIDTH) * SCALE;
+                                left->wasUpdated = true;
+
+                                self->wasUpdated = true; 
+                                self->type = VOID; 
+                                self->color = BLACK;
+                                self->exists = false;
+                                break;
+                            }
+                        }
+                        else if (randomness == 1 && canGoRight && rightIndex <= static_cast<int>(grid.size() - 1)) 
+                        {
+                            // check if right block is empty
+                            if (right->type == VOID)
+                            {
+                                right->type = WATER;
+                                right->color = BLUE;
+                                right->exists = true;
+                                right->rect.x = ( (i + 1) % GRID_WIDTH) * SCALE;
+                                right->rect.y = (i / GRID_WIDTH) * SCALE;
+                                right->wasUpdated = true; 
+
+                                self->wasUpdated = true; 
+                                self->type = VOID; 
+                                self->color = BLACK;
+                                self->exists = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
         else if (self->type == FIRE)
         {

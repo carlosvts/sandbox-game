@@ -11,7 +11,7 @@ enum TYPES
     WATER,
     FIRE,
     IRON,
-    AIR,
+    GAS,
 };
 
 
