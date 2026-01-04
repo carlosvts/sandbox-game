@@ -171,8 +171,6 @@ int main()
 
         BeginDrawing();
             ClearBackground(BLACK);
-            DrawFPS(WIDTH - 200, 30);
-            DrawText("Sandbox simulator", WIDTH - 200, 10, 21, GREEN);
  
             saveParticles(grid, selectedElement);
             if (simulationTimer >= maxTime)
@@ -182,6 +180,8 @@ int main()
             }
 
             drawParticles(grid);
+            DrawFPS(WIDTH - 200, 30);
+            DrawText("Sandbox simulator", WIDTH - 200, 10, 21, GREEN);
             selectedElement = checkSelectedElement(selectedElement); 
 
         EndDrawing();
