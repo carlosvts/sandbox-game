@@ -1,4 +1,5 @@
 #include <ios>
+#include <memory>
 #include <vector>
 
 #include "utils.hpp"
@@ -231,7 +232,75 @@ void calculatePhysics(std::vector<Particle> &grid)
         }
         else if (self->type == FIRE)
         {
+            // checks all moore neighbor
+            for (int y = -1; y < 1; ++y)
+            {
+                for(int x = -1; x < 1; ++x)
+                {
+                    // ignores itself 
+                    if (x == 0 && y == 0) { continue; }
+                    int neighborX = (i % GRID_WIDTH) + x;
+                    int neighborY = (i / GRID_WIDTH) + y;
 
+                    if (neighborX >= 0 && neighborY < GRID_WIDTH && neighborY >= 0 && neighborY < static_cast<int>(grid.size()) / GRID_WIDTH)
+                    {
+                        int index = neighborY * GRID_WIDTH + neighborX;
+                        Particle *neighbor = &grid.at(index);
+
+                        // check reactions with fire
+                        if (neighbor->type == WATER)
+                        {
+                            neighbor->type = GAS;
+                            neighbor->color = SKYBLUE;
+                            neighbor->wasUpdated = true;
+                        }
+                        else if(neighbor->type == VOID)
+                        {
+                            if (GetRandomValue(0, 100) <= 10)
+                            {
+                                self->type = VOID;
+                                self->color = BLACK;
+                                self->wasUpdated = true;
+                                self->exists = false;
+                            }
+                        }
+                        else if(neighbor->type == SAND)
+                        {
+                            neighbor->type = LAVA;
+                            neighbor->color = ORANGE;
+                            neighbor->wasUpdated = true;
+                        }
+                        else if(neighbor->type == IRON)
+                        {
+                            neighbor->type = FIRE;
+                            neighbor->color = RED;
+                            neighbor->wasUpdated = true;
+                        }
+                        else if(neighbor->type == GAS)
+                        {
+                            // if hits a gas, convolutes all Moore neighbor to fire
+                            for(int ky = -1; ky < 1; ++ky)
+                            {
+                                for(int kx = -1; kx < 1; ++kx)
+                                {
+                                    if(kx == 0 && ky == 0) { continue; }
+                                    int k_neighborX = (i % GRID_WIDTH) + kx;
+                                    int k_neighborY = (i / GRID_WIDTH) + ky;
+                                    if (k_neighborX >= 0 && k_neighborY < GRID_WIDTH && k_neighborY >= 0 && k_neighborY < static_cast<int>(grid.size() / GRID_WIDTH))
+                                    {
+                                        int k_index = k_neighborY * GRID_WIDTH + k_neighborX;
+                                        Particle* k_particle = &grid.at(k_index);
+                                        k_particle->type = FIRE;
+                                        k_particle->color = RED;
+                                        k_particle->exists = true;
+                                        k_particle->wasUpdated = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         else if(self->type == IRON)
         {
@@ -244,14 +313,7 @@ void calculatePhysics(std::vector<Particle> &grid)
             Particle* above = &grid.at(indexAbove);
  
             // if gas matches fire, it becomes a gas 
-            if(above->type == FIRE)
-            {
-                self->type = FIRE;
-                self->color = RED;
-                self->exists = true;
-                self->wasUpdated = true;
-                continue;
-            }
+            if(above->type == FIRE) { continue; }
 
             if((above->type == VOID || above->type == WATER) && !above->wasUpdated)
             {

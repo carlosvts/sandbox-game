@@ -12,6 +12,8 @@ enum TYPES
     FIRE,
     IRON,
     GAS,
+    LAVA,
+    CONWAY,
 };
 
 
