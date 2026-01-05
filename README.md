@@ -10,13 +10,19 @@ This project utilizes the `raylib.h` (pure C) API to manage low-level graphical 
 
 ## Gallery
 
-| Project Showcase | Thermal Shock (Lava + Water) | Chaos with Conway |
-| :---: | :---: | :---: |
-| <img src="assets/sandbox_title.gif" width="350"> | <img src="assets/waterdroppingwithlava.gif" width="350"> | <img src="assets/chaos.png" width="700">
+<div align="center">
+  <img src="assets/chaos.png" width="750" alt="Chaos Simulation Preview">
+</div>
+
+<br>
+
+| Project Showcase | Thermal Shock (Lava + Water) |
+| :---: | :---: |
+| <img src="assets/sandbox_title.gif" width="380"> | <img src="assets/waterdroppingwithlava.gif" width="380"> |
 
 | Fire & Chain Reactions | Sand & Water Physics |
 | :---: | :---: |
-| <img src="assets/firewithgasandiron.gif" width="350"> | <img src="assets/waterwithsand.gif" width="350"> |
+| <img src="assets/firewithgasandiron.gif" width="380"> | <img src="assets/waterwithsand.gif" width="380"> |
 
 ---
 
