@@ -21,8 +21,6 @@ struct Particle
 {
     TYPES type; 
     Rectangle rect;
-    float velocity {0};
-    float acceleration {0};
     Color color;
     bool exists = false;
     bool wasUpdated = false;

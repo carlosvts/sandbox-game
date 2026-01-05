@@ -19,9 +19,7 @@ int main()
         grid.at(i).rect.y = posY * SCALE;
         grid.at(i).rect.width = SCALE;
         grid.at(i).rect.height = SCALE;
-        grid.at(i).acceleration = 0;
         grid.at(i).exists = true;
-        grid.at(i).velocity = 0;
         grid.at(i).wasUpdated = false;
         grid.at(i).color = BLACK;
     }
