@@ -107,7 +107,7 @@ g++ main.cpp -o sandbox -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 ```
 
 ##  Resources
-Here are the key resources used for developing the physical engine, rendering logic, and neighborhood rules:
+Here are the key resources used for developing the physical engine, rendering logic, inspiration and neighborhood rules:
 
 * **Raylib Cheatsheet**: [Quick reference for functions and structures](https://www.raylib.com/cheatsheet/cheatsheet.html)
 * **Raylib Official Repository**: [GitHub - raysan5/raylib](https://github.com/raysan5/raylib)
