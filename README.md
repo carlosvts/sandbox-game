@@ -84,7 +84,35 @@ g++ main.cpp -o sandbox -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 ### Gas 
 * **Behavior**: Rises vertically with random horizontal diffusion, simulating smoke or steam.
+  
 ---
 
-# Reminder
-This project was developed for educational purposes to explore the Raylib library and the fundamentals of creating a sandbox game. While the architecture and performance could be significantly further optimized and modularized, my primary goal was to learn basic Raylib stuff.
+## Project structure
+
+```Markdown
+📁 Project
+├── 📄 Makefile         # Automates compilation with Raylib flags
+├── 📄 game.cpp         # Core logic: Physics engine and UI implementation
+├── 📄 game.hpp         # Global constants, element properties, and function prototypes
+├── 📄 main.cpp         # Entry point: Window initialization and main game loop
+├── 📄 utils.hpp        # Data structures: Particle struct and element Enums
+├── 📄 .gitignore       # Prevents tracking of binaries and object files
+└── 📁 assets/          # Project demonstrations and GIFs
+    ├── 🎞️ firewithgasandiron.gif
+    ├── 🎞️ sandbox_title.gif
+    ├── 🎞️ waterdroppingwithlava.gif
+    └── 🎞️ waterwithsand.gif
+```
+
+##  Resources
+Here are the key resources used for developing the physical engine, rendering logic, and neighborhood rules:
+
+* **Raylib Cheatsheet**: [Quick reference for functions and structures](https://www.raylib.com/cheatsheet/cheatsheet.html)
+* **Raylib Official Repository**: [GitHub - raysan5/raylib](https://github.com/raysan5/raylib)
+* **Daniel Hirsch - Coding Graphics in Raylib (C)**: [Youtube video](https://www.youtube.com/watch?v=dIpqIlwLYcI)
+* **Moore Neighborhood**: [Wikipedia](https://en.wikipedia.org/wiki/Moore_neighborhood)
+* **Von Neumann Neighborhood**: [Wikipedia](https://en.wikipedia.org/wiki/Von_Neumann_neighborhood)
+
+--- 
+## Reminder
+This project was developed for educational purposes to explore the Raylib library and the fundamentals of creating a sandbox game. While the architecture and performance could be significantly further optimized and modularized (e.g, creating a function for the kernel convolutions), my primary goal was to learn basic Raylib stuff.
