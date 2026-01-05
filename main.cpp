@@ -233,9 +233,9 @@ void calculatePhysics(std::vector<Particle> &grid)
         else if (self->type == FIRE)
         {
             // checks all moore neighbor
-            for (int y = -1; y < 1; ++y)
+            for (int y = -1; y <= 1; ++y)
             {
-                for(int x = -1; x < 1; ++x)
+                for(int x = -1; x <= 1; ++x)
                 {
                     // ignores itself 
                     if (x == 0 && y == 0) { continue; }
@@ -279,11 +279,13 @@ void calculatePhysics(std::vector<Particle> &grid)
                         else if(neighbor->type == GAS)
                         {
                             // if hits a gas, convolutes all Moore neighbor to fire
-                            for(int ky = -1; ky < 1; ++ky)
+                            for(int ky = -1; ky <= 1; ++ky)
                             {
-                                for(int kx = -1; kx < 1; ++kx)
+                                for(int kx = -1; kx <= 1; ++kx)
                                 {
                                     if(kx == 0 && ky == 0) { continue; }
+                                    if(GetRandomValue(0, 100) < 15) { continue; } // just a randomness to more
+
                                     int k_neighborX = (i % GRID_WIDTH) + kx;
                                     int k_neighborY = (i / GRID_WIDTH) + ky;
                                     if (k_neighborX >= 0 && k_neighborY < GRID_WIDTH && k_neighborY >= 0 && k_neighborY < static_cast<int>(grid.size() / GRID_WIDTH))
