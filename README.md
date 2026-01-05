@@ -63,7 +63,7 @@ g++ main.cpp -o sandbox -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 ### Sand (Granular Solid)
 * **Behavior**: Follows gravity with side-slipping logic to form natural piles.
-* **Interaction**: Extinguishes Conway cells via physical suffocation (neighbors > 3) when burying them, treating the space occupied by "life" as a vacuum for falling calculations.
+* **Interaction**: Extinguishes Conway cells via physical suffocation (neighbors > 5) when burying them, treating the space occupied by "life" as a vacuum for falling calculations.
 
 ### Water 
 * **Behavior**: Moves downwards and spreads horizontally to find the lowest available point.
@@ -79,7 +79,7 @@ g++ main.cpp -o sandbox -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 ### Conway 
 * **Rule Set**: A modified and resilient version of *Game of Life* adapted for a physical environment.
-* **Survival**: "Less Restricted" system where particles survive if they have between 0 and 3 neighbors (Moore).
+* **Survival**: "Less Restricted" system where particles survive if they have between 0 and 5 neighbors (Moore).
 * **Infection**: Expands into empty spaces using only Von Neumann neighborhood (+) with a small mutation chance per frame.
 
 ### Gas 
