@@ -637,7 +637,7 @@ int main()
 
             drawParticles(grid);
             DrawFPS(WIDTH - 200, 30);
-            DrawText("Carlosvts's Sandbox", WIDTH - 200, 10, 21, GREEN);
+            DrawText("Carlosvts's Sandbox", WIDTH - 230, 10, 21, GREEN);
             selectedElement = checkSelectedElement(selectedElement); 
 
         EndDrawing();
