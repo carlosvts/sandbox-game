@@ -1,6 +1,7 @@
-# C++ Cellular Automata Sandbox Physics Engine
+# Sandbox Physics Engine with Raylib C++
 
-A real-time particle simulation engine and physics sandbox developed in C++
+A real-time particle simulation engine and physics sandbox developed in C++ & Raylib
+This project utilizes the `raylib.h` (pure C) API to manage low-level graphical buffers while implementing custom C++ structures for particle state and grid management.
 
 ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)![Physics](https://img.shields.io/badge/Physics-Cellular--Automata-green)
 
