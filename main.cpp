@@ -16,7 +16,7 @@ constexpr const int FPS = 60;
 constexpr const int GUIPANEL_X = 10;
 constexpr const int GUIPANEL_Y = 10;
 constexpr const int GUIPANEL_WIDTH = 120;
-constexpr const int GUIPANEL_HEIGHT = 220;
+constexpr const int GUIPANEL_HEIGHT = 320;
 constexpr const int BUTTONPANEL_X = 20;
 constexpr const int BUTTONPANEL_Y = GUIPANEL_Y + 35;
 constexpr const int BUTTON_WIDTH = 100;
@@ -30,7 +30,9 @@ int checkSelectedElement(int &currentElement)
     if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y + 35 * 2, BUTTON_WIDTH, BUTTON_HEIGHT}, "FIRE")) { return FIRE; }
     if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y + 35 * 3, BUTTON_WIDTH, BUTTON_HEIGHT}, "IRON")) { return IRON; }
     if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y + 35 * 4, BUTTON_WIDTH, BUTTON_HEIGHT}, "GAS")) { return GAS; }
-    if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y   + 35 * 5, BUTTON_WIDTH, BUTTON_HEIGHT}, "VOID")) { return VOID; }
+    if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y + 35 * 5, BUTTON_WIDTH, BUTTON_HEIGHT}, "LAVA")) { return LAVA; }
+    if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y + 35 * 6, BUTTON_WIDTH, BUTTON_HEIGHT}, "CONWAY")) { return CONWAY; }
+    if (GuiButton({BUTTONPANEL_X, BUTTONPANEL_Y   + 35 * 7, BUTTON_WIDTH, BUTTON_HEIGHT}, "VOID")) { return VOID; }
     return currentElement; 
 }
 
@@ -77,6 +79,18 @@ void saveParticles(std::vector<Particle>&grid, int selectedElement)
                 particle.color = SKYBLUE;
                 break;
             }
+            case LAVA:
+            {
+                particle.type = LAVA;
+                particle.color = ORANGE;
+                break;
+            }
+            case CONWAY:
+            {
+                particle.type = CONWAY;
+                particle.color = LIME;
+                break;
+            }
             default:
             {
                 particle.type = VOID;
@@ -118,8 +132,8 @@ void calculatePhysics(std::vector<Particle> &grid)
             Particle *other = &grid.at(index);
             if ((other->type == VOID || other->type == WATER) && !other->wasUpdated) 
             {
-                // if down is VOID
-                if (other->type == VOID)
+                // if down is VOID or CONWAY
+                if (other->type == VOID || other->type == CONWAY)
                 {
                     other->type = SAND;
                     other->color = self->color;
@@ -276,9 +290,9 @@ void calculatePhysics(std::vector<Particle> &grid)
                             neighbor->color = RED;
                             neighbor->wasUpdated = true;
                         }
-                        else if(neighbor->type == GAS)
+                        else if(neighbor->type == GAS || neighbor->type == CONWAY)
                         {
-                            // if hits a gas, convolutes all Moore neighbor to fire
+                            // if hits a gas or conway, convolutes all Moore neighbor to fire
                             for(int ky = -1; ky <= 1; ++ky)
                             {
                                 for(int kx = -1; kx <= 1; ++kx)
@@ -306,7 +320,7 @@ void calculatePhysics(std::vector<Particle> &grid)
         }
         else if(self->type == IRON)
         {
-
+            continue; // iron is just a static block
         }
         else if(self->type == GAS)
         {
@@ -391,6 +405,187 @@ void calculatePhysics(std::vector<Particle> &grid)
                 }
             }
         }
+        else if (self->type == LAVA)
+        {
+            int index = i + GRID_WIDTH;
+            // left, down, right 
+            int leftIndex = i - 1;
+            int rightIndex = i + 1;
+            if (leftIndex <= 0 || rightIndex >= static_cast<int>(grid.size()) || i <= 0 || i >= static_cast<int>(grid.size())) { continue; }
+            // std::vector<Particle*> others = {&grid.at(leftIndex), &grid.at(index), &grid.at(rightIndex)};
+           
+            if (index <static_cast<int>(grid.size()))
+            {
+                // randomness to emalute a viscosity effect
+                if (GetRandomValue(0, 100) <= 80) { continue; } // 20% chance of moving
+                Particle* under = &grid.at(index);
+            
+                // if the under is void, just go down again
+                if ((under->type == VOID || !under->exists || under->type == WATER || under->type == IRON  || under->type == GAS || under->type == FIRE) && !under->wasUpdated)
+                {
+                    under->type = self->type;
+                    under->color = self->color;
+                    under->exists = true;
+                    under->rect.x= (index % GRID_WIDTH) * SCALE;
+                    under->rect.y = (index / GRID_WIDTH) * SCALE;
+
+                    self->wasUpdated = true;
+                    self->type = VOID;
+                    self->color = BLACK;
+                    self->exists = false;
+                    continue;
+
+                }
+
+                // if the under is iron, swipes horizontally
+                else if (under->type == LAVA)
+                {
+                    // variable to make more random where water will slip 
+                    Particle* left = &grid.at(leftIndex);
+                    Particle* right = &grid.at(rightIndex);
+                    bool canGoLeft = (i % GRID_WIDTH > 0);
+                    bool canGoRight = (i % GRID_WIDTH < GRID_WIDTH - 1);
+
+                    int randomness = GetRandomValue(0, 1);
+                    for(int attempt = 0; attempt < 2; attempt++)
+                    {
+                        if (randomness == 0 && canGoLeft && leftIndex > 0)
+                        {
+                            // check if left block is empty
+                            if (left->type == VOID)
+                            {
+                                left->type = LAVA;
+                                left->color = ORANGE; 
+                                left->exists = true;
+                                left->rect.x = ( (i - 1) % GRID_WIDTH) * SCALE;
+                                left->rect.y = (i / GRID_WIDTH) * SCALE;
+                                left->wasUpdated = true;
+
+                                self->wasUpdated = true; 
+                                self->type = VOID; 
+                                self->color = BLACK;
+                                self->exists = false;
+                                break;
+                            }
+                        }
+                        else if (randomness == 1 && canGoRight && rightIndex <= static_cast<int>(grid.size() - 1)) 
+                        {
+                            // check if right block is empty
+                            if (right->type == VOID)
+                            {
+                                right->type = LAVA;
+                                right->color = ORANGE;
+                                right->exists = true;
+                                right->rect.x = ( (i + 1) % GRID_WIDTH) * SCALE;
+                                right->rect.y = (i / GRID_WIDTH) * SCALE;
+                                right->wasUpdated = true; 
+
+                                self->wasUpdated = true; 
+                                self->type = VOID; 
+                                self->color = BLACK;
+                                self->exists = false;
+                                break;
+                            }
+                        }
+                    }
+                    // adds extra sauce with conway in a really unique circunstance
+                    for (int y = -1; y <= 1; y++) 
+                    {
+                        for (int x = -1; x <= 1; x++) 
+                        {
+                            if (x == 0 && y == 0) continue; // Ignores itself 
+
+                            int checkX = (i % GRID_WIDTH) + x;
+                            int checkY = (i / GRID_WIDTH) + y;
+
+                            if (checkX >= 0 && checkX < GRID_WIDTH && checkY >= 0 && checkY < (int)(grid.size() / GRID_WIDTH)) 
+                            {
+                                int targetIdx = checkY * GRID_WIDTH + checkX;
+                                Particle* neighbor = &grid[targetIdx];
+
+                                // if lava encounters water, it can generate a conway particle 
+                                if (neighbor->type == WATER) 
+                                {
+                                    // 20%  (CONWAY), 80% (GAS)
+                                    if (GetRandomValue(0, 100) < 20) 
+                                    {
+                                        neighbor->type = CONWAY;
+                                        neighbor->color = LIME;
+                                        neighbor->exists = true;
+                                    } 
+                                    else 
+                                    {
+                                        neighbor->type = GAS;
+                                        neighbor->color = SKYBLUE;
+                                        neighbor->exists = true;
+                                    }
+                                    neighbor->wasUpdated = true;
+                                    self->type = VOID;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else if (self->type == CONWAY)
+        {
+            int neighbors {0};
+            for (int y = -1; y <= 1; y++) 
+            {
+                for (int x = -1; x <= 1; x++) 
+                {
+                    if (x == 0 && y == 0) continue;
+
+                    int checkX = (i % GRID_WIDTH) + x;
+                    int checkY = (i / GRID_WIDTH) + y;
+
+                    if (checkX >= 0 && checkX < GRID_WIDTH && checkY >= 0 && checkY < (int)(grid.size() / GRID_WIDTH)) 
+                    {
+                        int targetIdx = checkY * GRID_WIDTH + checkX; 
+                        if (grid.at(targetIdx).exists) { neighbors++; }
+                    }
+                }
+            }
+            // EDITED VERSION, now particles can survive if they are alone
+            if (neighbors > 3)
+            {
+                self->type = VOID;
+                self->color = BLACK;
+                self->exists = false;
+                self->wasUpdated = true;
+            }
+            else
+            {
+                self->wasUpdated = true;
+                if (GetRandomValue(0, 100) <= 30) // 30% chance of infecting other particle 
+                {
+                   int offsets[] = { -GRID_WIDTH, GRID_WIDTH, -1, 1 };
+                    for (int x = 0; x < 4; x++)
+                    {
+                        int targetIdx = i + offsets[x];
+
+                        if (targetIdx >= 0 && targetIdx < static_cast<int>(grid.size()))
+                        {
+                            bool isSide = (offsets[x] == -1 || offsets[x] == 1);
+                            if (isSide)
+                            {
+                                if ((offsets[x] == -1 && i % GRID_WIDTH == 0) || (offsets[x] == 1 && i % GRID_WIDTH == GRID_WIDTH - 1)) { continue; }
+                            }
+
+                            Particle* target = &grid.at(targetIdx);
+                            if (!target->exists && GetRandomValue(0, 100) < 5)
+                            {
+                                target->type = CONWAY;
+                                target->color = LIME;
+                                target->exists = true;
+                                target->wasUpdated = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -442,7 +637,7 @@ int main()
 
             drawParticles(grid);
             DrawFPS(WIDTH - 200, 30);
-            DrawText("Sandbox simulator", WIDTH - 200, 10, 21, GREEN);
+            DrawText("Carlosvts's Sandbox", WIDTH - 200, 10, 21, GREEN);
             selectedElement = checkSelectedElement(selectedElement); 
 
         EndDrawing();
