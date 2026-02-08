@@ -60,7 +60,7 @@ https://github.com/raysan5/raylib
 For compiling this project using **Raylib**, you need to include the essential headers.
 
 ```bash
-g++ main.cpp -o sandbox -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+g++ main.cpp game.cpp -o sandbox -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 ./sandbox
 ```
