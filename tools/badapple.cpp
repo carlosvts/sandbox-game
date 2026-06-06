@@ -143,8 +143,14 @@ int main()
 
     float accumulator = 0.0f;
 
+    // set music
+    InitAudioDevice();
+    Music music = LoadMusicStream("audio.wav");
+    PlayMusicStream(music);
+
     while (!WindowShouldClose())
     {
+        UpdateMusicStream(music);
         accumulator += GetFrameTime();
 
         if (accumulator >= FRAME_TIME)
@@ -184,7 +190,9 @@ int main()
 
         EndDrawing();
     }
-
+    // free music
+    UnloadMusicStream(music);
+    CloseAudioDevice();
     CloseWindow();
 
     return 0;
