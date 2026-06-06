@@ -26,7 +26,21 @@ std::string framePath(int frame)
     return oss.str();
 }
 
-void loadFrameToGrid(const BMP &frame, std::vector<Particle> &grid)
+void clearBadAppleLayer(std::vector<Particle> &grid)
+{
+    for (Particle &p : grid)
+    {
+        if (p.type == IRON)
+        {
+            p.type = VOID;
+            p.exists = false;
+            p.color = BLACK;
+            p.wasUpdated = false;
+        }
+    }
+}
+
+void injectFrame(const BMP &frame, std::vector<Particle> &grid)
 {
     const int channels = frame.infoHeader.bitCount / 8;
 
@@ -34,13 +48,7 @@ void loadFrameToGrid(const BMP &frame, std::vector<Particle> &grid)
 
     const int height = std::min(GRID_HEIGHT, frame.infoHeader.height);
 
-    for (Particle &particle : grid)
-    {
-        particle.type = VOID;
-        particle.exists = false;
-        particle.color = BLACK;
-        particle.wasUpdated = false;
-    }
+    clearBadAppleLayer(grid);
 
     for (int y = 0; y < height; y++)
     {
@@ -54,13 +62,13 @@ void loadFrameToGrid(const BMP &frame, std::vector<Particle> &grid)
 
             uint8_t pixel = frame.data[bmpIndex];
 
-            Particle &p = grid[gridIndex];
-
-            if (pixel == 0)
+            if (pixel == 255)
             {
-                p.type = SAND;
+                Particle &p = grid[gridIndex];
+
+                p.type = IRON;
+                p.color = WHITE;
                 p.exists = true;
-                p.color = YELLOW;
                 p.wasUpdated = false;
 
                 p.rect = {static_cast<float>(x * SCALE),
@@ -70,18 +78,64 @@ void loadFrameToGrid(const BMP &frame, std::vector<Particle> &grid)
     }
 }
 
+void spawnRandomParticles(std::vector<Particle> &grid)
+{
+    for (int i = 0; i < 5; ++i)
+    {
+        int x = GetRandomValue(0, GRID_WIDTH - 1);
+        int y = GetRandomValue(0, 10);
+
+        int idx = y * GRID_WIDTH + x;
+
+        if (!grid[idx].exists)
+        {
+            Particle &p = grid[idx];
+
+            p.type = SAND;
+            p.color = YELLOW;
+            p.exists = true;
+            p.wasUpdated = false;
+
+            p.rect = {static_cast<float>(x * SCALE),
+                      static_cast<float>(y * SCALE), SCALE, SCALE};
+        }
+    }
+
+    for (int i = 0; i < 5; ++i)
+    {
+        int x = GetRandomValue(0, GRID_WIDTH - 1);
+        int y = GetRandomValue(0, 10);
+
+        int idx = y * GRID_WIDTH + x;
+
+        if (!grid[idx].exists)
+        {
+            Particle &p = grid[idx];
+
+            p.type = WATER;
+            p.color = BLUE;
+            p.exists = true;
+            p.wasUpdated = false;
+
+            p.rect = {static_cast<float>(x * SCALE),
+                      static_cast<float>(y * SCALE), SCALE, SCALE};
+        }
+    }
+}
+
 int main()
 {
     std::vector<Particle> grid(GRID_WIDTH * GRID_HEIGHT);
 
+    for (Particle &p : grid)
+    {
+        p.type = VOID;
+        p.exists = false;
+        p.color = BLACK;
+        p.wasUpdated = false;
+    }
+
     int currentFrame = 1;
-
-    BMP frame(framePath(currentFrame).c_str());
-
-    frame.toGrayScale();
-    frame.toThreshold();
-
-    loadFrameToGrid(frame, grid);
 
     InitWindow(WIDTH, HEIGHT, "Bad Apple Sandbox");
 
@@ -97,18 +151,18 @@ int main()
         {
             accumulator -= FRAME_TIME;
 
-            currentFrame++;
-
             std::string path = framePath(currentFrame);
 
             if (std::filesystem::exists(path))
             {
-                BMP next(path.c_str());
+                BMP frame(path.c_str());
 
-                next.toGrayScale();
-                next.toThreshold();
+                frame.toGrayScale();
+                frame.toThreshold();
 
-                loadFrameToGrid(next, grid);
+                injectFrame(frame, grid);
+
+                currentFrame++;
             }
             else
             {
@@ -116,11 +170,17 @@ int main()
             }
         }
 
+        spawnRandomParticles(grid);
+
+        calculatePhysics(grid);
+
         BeginDrawing();
 
         ClearBackground(BLACK);
 
         drawParticles(grid);
+
+        DrawText(TextFormat("Frame: %d", currentFrame), 10, 10, 20, WHITE);
 
         EndDrawing();
     }
