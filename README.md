@@ -43,16 +43,6 @@ Frames are pre-generated as BMP images (with python) and loaded directly by the 
 
 > If you clone this repository, you dont need to use `pip` or `uv` to install the requirements since every image from badapple is already on `frames_bmp/` folder.
 
-**Main Objectives:**
-* Implement a Sandbox game using Raylib
-* Implement a real-time animation renderer (Bad Apple) using the same simulation and rendering infrastructure
-* Develop a Hybrid Neighborhood System:
-    * Moore Neighborhood (8 neighbors): Used for density-based survival and thermal reactions (Fire/Lava)
-    * Von Neumann Neighborhood (4 neighbors): Used for directional propagation and structured spreading patterns
-* Implement non-deterministic behaviors using probability-based state transitions for organic spreading and physical variety
-
-The architecture separates the physical simulation from the rendering logic, allowing a clean implementation of element-specific behaviors within a unified grid-processing kernel.
-
 ---
 
 ## Technologies
