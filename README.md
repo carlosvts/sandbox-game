@@ -110,27 +110,25 @@ make badapple
 
 ## Project Structure
 
-## Project Structure
-
 ```text
 Project
-├── generate_frames.py
+├── generate_frames.py               # For geting badapple video->png->bmp
 ├── assets
-|   └── (all assets for readme)
+|   └── (all assets for readme)      # assets for readme showcase
 ├── include
-│   ├── bitmap.hpp
-│   ├── game.hpp
-│   └── utils.hpp
+│   ├── bitmap.hpp                   # bitmap parser from carlosvts/raw-image-processor
+│   ├── game.hpp                     # game header file
+│   └── utils.hpp                    # main structs and enums of the game
 ├── Makefile
 ├── README.md
 ├── frames_bmp
 │   └── (all generated BMP frames)
 ├── src
-│   ├── game.cpp
-│   └── main.cpp
+│   ├── game.cpp                     # implementation of bitmap.hpp
+│   └── main.cpp                     # main logic for sandbox game
 ├── tools
-│   └── badapple.cpp
-└── venv
+│   └── badapple.cpp                 # main logic for badapple simulation
+└── requirements.txt                 # requirements for python                              
 ```
 
 ## Resources
