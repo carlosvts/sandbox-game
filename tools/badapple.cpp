@@ -3,6 +3,7 @@
  * And make it into a binary readble file
  * So i can render badapple using my engine
  */
+#include <iostream>
 #include <raylib.h>
 
 #include "bitmap.hpp"
@@ -12,7 +13,10 @@ constexpr int CELL_SIZE = 5;
 int main()
 {
     BMP frame("frames_bmp/frame_000001.bmp");
-
+    std::cout << frame.infoHeader.width << '\n';
+    std::cout << frame.infoHeader.height << '\n';
+    std::cout << frame.infoHeader.bitCount << '\n';
+    std::cout << frame.data.size() << '\n';
     frame.toGrayScale();
     frame.toThreshold();
 

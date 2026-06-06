@@ -4,6 +4,8 @@ main
 venv
 env
 /venv
+badapple
+game
 
 # Prerequisites
 *.d
