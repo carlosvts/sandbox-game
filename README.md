@@ -139,3 +139,7 @@ Project
 * Moore Neighborhood: https://en.wikipedia.org/wiki/Moore_neighborhood
 * Von Neumann Neighborhood: https://en.wikipedia.org/wiki/Von_Neumann_neighborhood
 * Bad Apple (YouTube): https://www.youtube.com/watch?v=FtutLA63Cp8
+
+## License
+
+MIT
