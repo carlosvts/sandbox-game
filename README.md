@@ -27,24 +27,39 @@ This project utilizes the `raylib.h` (pure C) API to manage low-level graphical 
 ---
 
 ## About the Project
+
 A high-performance particle simulation engine where emergent behaviors arise from simple local rules. This project explores cellular automata, non-deterministic physics, and real-time rendering of thousands of individual agents interacting in a dynamic grid.
 
-This project implements a "Falling Sand" style simulation where every pixel on the grid is an independent particle with its own properties. By using localized interaction rules, the system simulates complex phenomena like basic fluid dynamics,thermodynamics, and biological patterns.
+This project implements a "Falling Sand" style simulation where every pixel on the grid is an independent particle with its own properties. By using localized interaction rules, the system simulates complex phenomena like fluid dynamics, thermodynamics, and emergent pattern formation.
+
+The repository contains two executables built on top of the same engine core:
+
+- Sandbox Game: interactive particle simulation environment
+- Bad Apple Renderer: real-time rendering of a bitmap-based animation using the same grid and rendering pipeline
+
+The Bad Apple renderer is fully implemented on top of a custom C++ engine. All image decoding, bitmap parsing, and frame processing are handled by a custom-built image processing library (no external multimedia libraries are used). The only external dependency is Raylib, which is used strictly as a low-level graphics backend for window creation and pixel buffer presentation.
+
+Frames are pre-generated as BMP images and loaded directly by the engine. Each frame is processed through the custom bitmap pipeline and interpreted as a pixel field that is mapped into the simulation grid. From there, the same particle update and rendering system used in the sandbox is reused to display the animation in real time. This design keeps the entire system unified under a single simulation and rendering architecture, where both the sandbox and Bad Apple share the same low-level execution model.
 
 **Main Objectives:**
-* Implement a **Sandbox game** using **Raylib** engine.
-* Develop a **Hybrid Neighborhood System**:
-    * **Moore Neighborhood (8 neighbors)**: Used for density-based survival and thermal reactions (Fire/Lava).
-    * **Von Neumann Neighborhood (4 neighbors)**: Used for directional biological infection and growth patterns.
-* Implement non-deterministic behaviors using probability-based state transitions for organic spreading and physical variety.
+* Implement a Sandbox game using Raylib
+* Implement a real-time animation renderer (Bad Apple) using the same simulation and rendering infrastructure
+* Develop a Hybrid Neighborhood System:
+    * Moore Neighborhood (8 neighbors): Used for density-based survival and thermal reactions (Fire/Lava)
+    * Von Neumann Neighborhood (4 neighbors): Used for directional propagation and structured spreading patterns
+* Implement non-deterministic behaviors using probability-based state transitions for organic spreading and physical variety
 
-The architecture separates the physical simulation from the rendering logic, allowing for a clean implementation of element-specific behaviors within a unified grid-processing kernel.
+The architecture separates the physical simulation from the rendering logic, allowing a clean implementation of element-specific behaviors within a unified grid-processing kernel.
+
+---
 
 ## Technologies
 
-* **Language:** ISO C++17
-* **Graphics Library:** [Raylib](https://www.raylib.com/)
-* **Compiler:** g++
+* Language: ISO C++17
+* Graphics Library: https://www.raylib.com/
+* Compiler: g++
+
+---
 
 ## How to Build and Run
 
@@ -52,75 +67,85 @@ The architecture separates the physical simulation from the rendering logic, all
 
 Ensure you have a C++ compiler and the Raylib development headers installed.
 
-For Raylib, check their own repository and go to "**build and installation**"
+For Raylib installation:
 https://github.com/raysan5/raylib
 
-#### Compiling & Running
+### Compiling & Running
 
-For compiling this project using **Raylib**, you need to include the essential headers.
+To run the sandbox game
 
 ```bash
-g++ main.cpp game.cpp -o sandbox -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
-
+make sandbox
 ./sandbox
 ```
+
+To run the badapple simulation
+```bash
+make badapple
+./badapple
+```
+
 ## Available Elements & Interactions
 
 ### Void
-* **Behavior & Interaction**: Just void, you can use it as a erase tool.
+* Behavior & Interaction: Empty space used as a base state and erase tool.
 
 ### Sand (Granular Solid)
-* **Behavior**: Follows gravity with side-slipping logic to form natural piles.
-* **Interaction**: Extinguishes Conway cells via physical suffocation (neighbors > 5) when burying them, treating the space occupied by "life" as a vacuum for falling calculations.
+* Behavior: Follows gravity with side-slipping logic to form natural piles.
+* Interaction: Interacts with other elements through burial and displacement dynamics.
 
-### Water 
-* **Behavior**: Moves downwards and spreads horizontally to find the lowest available point.
-* **Interaction**: Reacts violently with Lava; when mixed with sand, it flows through empty spaces.
+### Water
+* Behavior: Moves downwards and spreads horizontally.
+* Interaction: Reacts with Lava and flows through empty space and granular materials.
 
-### Fire 
-* **Behavior**: Spreads non-deterministically through flammable materials using a 3x3 Moore kernel.
-* **Interaction**: Quickly consumes Gas and Iron; interacts with Conway cells by burning them as if they were biomass.
+### Fire
+* Behavior: Spreads non-deterministically through flammable materials using a 3x3 Moore kernel.
+* Interaction: Consumes Gas and transforms certain materials through thermal reactions.
 
-### Lava 
-* **Behavior**: Heavy and viscous liquid that moves slowly with high density.
-* **Interaction**: The "corrosive element". It melts materials and, upon touching water, generates a thermal shock reaction that can turn into gas or Conway seeds
+### Lava
+* Behavior: Heavy and viscous liquid that moves slowly with high density.
+* Interaction: Melts materials and creates thermal reactions when interacting with water and solids.
 
-### Conway 
-* **Rule Set**: A modified and resilient version of *Game of Life* adapted for a physical environment.
-* **Survival**: "Less Restricted" system where particles survive if they have between 0 and 5 neighbors (Moore).
-* **Infection**: Expands into empty spaces using only Von Neumann neighborhood (+) with a small mutation chance per frame.
+### Conway
+* Rule Set: A modified version of Game of Life adapted for a physical environment.
+* Survival: Based on local neighborhood density.
+* Infection: Expands into empty spaces with probabilistic mutation.
 
-### Gas 
-* **Behavior**: Rises vertically with random horizontal diffusion, simulating smoke or steam.
-  
+### Gas
+* Behavior: Rises vertically with random horizontal diffusion, simulating smoke or steam.
+
 ---
 
-## Project structure
+## Project Structure
 
-```Markdown
-📁 Project
-├── 📄 Makefile         # Automates compilation with Raylib flags
-├── 📄 game.cpp         # Core logic: Physics engine and UI implementation
-├── 📄 game.hpp         # Global constants, element properties, and function prototypes
-├── 📄 main.cpp         # Entry point: Window initialization and main game loop
-├── 📄 utils.hpp        # Data structures: Particle struct and element Enums
-├── 📄 .gitignore       # Prevents tracking of binaries and object files
-└── 📁 assets/          # Project demonstrations and GIFs
-    ├── 🎞️ firewithgasandiron.gif
-    ├── 🎞️ sandbox_title.gif
-    ├── 🎞️ waterdroppingwithlava.gif
-    └── 🎞️ waterwithsand.gif
+## Project Structure
+
+```text
+Project
+├── generate_frames.py
+├── assets
+|   └── (all assets for readme)
+├── include
+│   ├── bitmap.hpp
+│   ├── game.hpp
+│   └── utils.hpp
+├── Makefile
+├── README.md
+├── frames_bmp
+│   └── (all generated BMP frames)
+├── src
+│   ├── game.cpp
+│   └── main.cpp
+├── tools
+│   └── badapple.cpp
+└── venv
 ```
 
-##  Resources
-Here are the key resources used for developing the physical engine, rendering logic, inspiration and neighborhood rules:
+## Resources
 
-* **Raylib Cheatsheet**: [Quick reference for functions and structures](https://www.raylib.com/cheatsheet/cheatsheet.html)
-* **Raylib Official Repository**: [GitHub - raysan5/raylib](https://github.com/raysan5/raylib)
-* **Daniel Hirsch - Coding Graphics in Raylib (C)**: [Youtube video](https://www.youtube.com/watch?v=dIpqIlwLYcI)
-* **Moore Neighborhood**: [Wikipedia](https://en.wikipedia.org/wiki/Moore_neighborhood)
-* **Von Neumann Neighborhood**: [Wikipedia](https://en.wikipedia.org/wiki/Von_Neumann_neighborhood)
-
---- 
-## Reminder
-This project was developed for educational purposes to explore the Raylib library and the fundamentals of creating a sandbox game. While the architecture and performance could be significantly further optimized and modularized (e.g, creating a function for the kernel convolutions), my primary goal was to learn basic Raylib stuff.
+* Raylib Cheatsheet: https://www.raylib.com/cheatsheet/cheatsheet.html
+* Raylib Repository: https://github.com/raysan5/raylib
+* Daniel Hirsch - Coding Graphics in Raylib (C): https://www.youtube.com/watch?v=dIpqIlwLYcI
+* Moore Neighborhood: https://en.wikipedia.org/wiki/Moore_neighborhood
+* Von Neumann Neighborhood: https://en.wikipedia.org/wiki/Von_Neumann_neighborhood
+* Bad Apple (YouTube): https://www.youtube.com/watch?v=FtutLA63Cp8
