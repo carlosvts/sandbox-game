@@ -3,11 +3,11 @@
 
 #include "utils.hpp"
 #include <vector>
+// 900 x 600 default
+constexpr const int WIDTH = 1200;
+constexpr const int HEIGHT = 1200;
 
-constexpr const int WIDTH = 900;
-constexpr const int HEIGHT = 600;
-
-constexpr const int SCALE = 5;
+constexpr const int SCALE = 6;
 constexpr const int GRID_WIDTH = WIDTH / SCALE;
 constexpr const int GRID_HEIGHT = HEIGHT / SCALE;
 constexpr const int FPS = 120;

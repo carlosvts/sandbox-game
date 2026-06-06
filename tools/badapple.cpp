@@ -84,7 +84,7 @@ void injectFrame(const BMP &frame, std::vector<Particle> &grid)
 void spawnRandomParticles(std::vector<Particle> &grid)
 {
     // spawn sand
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 15; ++i)
     {
         int x = GetRandomValue(0, GRID_WIDTH - 1);
         // more down the axis generate a better output
@@ -106,8 +106,29 @@ void spawnRandomParticles(std::vector<Particle> &grid)
         }
     }
 
+    // // spawn fire (maybe burn the character)
+    // for (int i{}; i < 5; ++i)
+    // {
+    //     int x = GetRandomValue(0, GRID_WIDTH - 1);
+    //     int y = GetRandomValue(0, GRID_HEIGHT - 1);
+    //
+    //     int idx = y * GRID_WIDTH + x;
+    //
+    //     if (!grid[idx].exists)
+    //     {
+    //         Particle &p = grid[idx];
+    //
+    //         p.type = FIRE;
+    //         p.color = RED;
+    //         p.exists = true;
+    //         p.wasUpdated = false;
+    //         p.rect = {static_cast<float>(x * SCALE),
+    //                   static_cast<float>(y * SCALE), SCALE, SCALE};
+    //     }
+    // }
+
     // spawn more water than sand
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 15; ++i)
     {
         int x = GetRandomValue(0, GRID_WIDTH - 1);
         int y = GetRandomValue(0, 20);
@@ -145,7 +166,7 @@ int main()
 
     InitWindow(WIDTH, HEIGHT, "Bad Apple Sandbox");
 
-    SetTargetFPS(60);
+    SetTargetFPS(FPS);
 
     float accumulator = 0.0f;
 
