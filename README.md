@@ -3,6 +3,7 @@
 A real-time particle simulation engine and physics sandbox developed in C++ & Raylib
 
 This project utilizes the `raylib.h` (pure C) API to manage low-level graphical buffers while implementing custom C++ structures for particle state and grid management.
+
 ---
 
 ## Gallery
