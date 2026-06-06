@@ -26,6 +26,8 @@ std::string framePath(int frame)
     return oss.str();
 }
 
+// To move to the next frame,
+// we need to remove every character (every characteris IRON from my engine)
 void clearBadAppleLayer(std::vector<Particle> &grid)
 {
     for (Particle &p : grid)
@@ -62,12 +64,13 @@ void injectFrame(const BMP &frame, std::vector<Particle> &grid)
 
             uint8_t pixel = frame.data[bmpIndex];
 
+            // Here assumes that image is already grayscaled and thrsholded
             if (pixel == 255)
             {
                 Particle &p = grid[gridIndex];
 
                 p.type = IRON;
-                p.color = WHITE;
+                p.color = WHITE; // white so we have more visibility than gray
                 p.exists = true;
                 p.wasUpdated = false;
 
@@ -80,10 +83,12 @@ void injectFrame(const BMP &frame, std::vector<Particle> &grid)
 
 void spawnRandomParticles(std::vector<Particle> &grid)
 {
-    for (int i = 0; i < 5; ++i)
+    // spawn sand
+    for (int i = 0; i < 10; ++i)
     {
         int x = GetRandomValue(0, GRID_WIDTH - 1);
-        int y = GetRandomValue(0, 10);
+        // more down the axis generate a better output
+        int y = GetRandomValue(0, 20);
 
         int idx = y * GRID_WIDTH + x;
 
@@ -101,10 +106,11 @@ void spawnRandomParticles(std::vector<Particle> &grid)
         }
     }
 
-    for (int i = 0; i < 5; ++i)
+    // spawn more water than sand
+    for (int i = 0; i < 10; ++i)
     {
         int x = GetRandomValue(0, GRID_WIDTH - 1);
-        int y = GetRandomValue(0, 10);
+        int y = GetRandomValue(0, 20);
 
         int idx = y * GRID_WIDTH + x;
 
