@@ -1,6 +1,9 @@
 sandbox
 sandboxgame
 main
+venv
+env
+/venv
 
 # Prerequisites
 *.d
