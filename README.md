@@ -39,7 +39,9 @@ The repository contains two executables built on top of the same engine core:
 
 The Bad Apple renderer is fully implemented on top of a custom C++ engine. All image decoding, bitmap parsing, and frame processing are handled by a custom-built image processing library (no external multimedia libraries are used). The only external dependency is Raylib, which is used strictly as a low-level graphics backend for window creation and pixel buffer presentation.
 
-Frames are pre-generated as BMP images and loaded directly by the engine. Each frame is processed through the custom bitmap pipeline and interpreted as a pixel field that is mapped into the simulation grid. From there, the same particle update and rendering system used in the sandbox is reused to display the animation in real time. This design keeps the entire system unified under a single simulation and rendering architecture, where both the sandbox and Bad Apple share the same low-level execution model.
+Frames are pre-generated as BMP images (with python) and loaded directly by the engine. Each frame is processed through the custom bitmap pipeline and interpreted as a pixel field that is mapped into the simulation grid. From there, the same particle update and rendering system used in the sandbox is reused to display the animation in real time. This design keeps the entire system unified under a single simulation and rendering architecture, where both the sandbox and Bad Apple share the same low-level execution model.
+
+> If you clone this repository, you dont need to use `pip` or `uv` to install the requirements since every image from badapple is already on `frames_bmp/` folder.
 
 **Main Objectives:**
 * Implement a Sandbox game using Raylib
