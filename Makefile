@@ -22,11 +22,12 @@ GAME_SRCS = \
 GAME_OBJS = $(GAME_SRCS:.cpp=.o)
 
 # --------------------
-# Bad Apple Tool
+# Bad Apple
 # --------------------
 
 BADAPPLE_SRCS = \
-	tools/badapple.cpp
+	tools/badapple.cpp \
+	src/game.cpp
 
 BADAPPLE_OBJS = $(BADAPPLE_SRCS:.cpp=.o)
 
@@ -69,8 +70,8 @@ run-badapple: $(BADAPPLE_TARGET)
 
 clean:
 	rm -f \
-		$(GAME_OBJS) \
-		$(BADAPPLE_OBJS) \
+		src/*.o \
+		tools/*.o \
 		$(GAME_TARGET) \
 		$(BADAPPLE_TARGET)
 

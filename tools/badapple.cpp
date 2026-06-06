@@ -3,22 +3,21 @@
  * And make it into a binary readble file
  * So i can render badapple using my engine
  */
-
 #include <filesystem>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include <raylib.h>
 
 #include "bitmap.hpp"
+#include "game.hpp"
 
-constexpr int CELL_SIZE = 5;
 constexpr float FRAME_TIME = 1.0f / 30.0f;
 
 std::string framePath(int frame)
 {
-    // building path to get every file
     std::ostringstream oss;
 
     oss << "frames_bmp/frame_" << std::setw(6) << std::setfill('0') << frame
@@ -27,17 +26,64 @@ std::string framePath(int frame)
     return oss.str();
 }
 
+void loadFrameToGrid(const BMP &frame, std::vector<Particle> &grid)
+{
+    const int channels = frame.infoHeader.bitCount / 8;
+
+    const int width = std::min(GRID_WIDTH, frame.infoHeader.width);
+
+    const int height = std::min(GRID_HEIGHT, frame.infoHeader.height);
+
+    for (Particle &particle : grid)
+    {
+        particle.type = VOID;
+        particle.exists = false;
+        particle.color = BLACK;
+        particle.wasUpdated = false;
+    }
+
+    for (int y = 0; y < height; y++)
+    {
+        int flippedY = frame.infoHeader.height - 1 - y;
+
+        for (int x = 0; x < width; x++)
+        {
+            int bmpIndex = (flippedY * frame.infoHeader.width + x) * channels;
+
+            int gridIndex = y * GRID_WIDTH + x;
+
+            uint8_t pixel = frame.data[bmpIndex];
+
+            Particle &p = grid[gridIndex];
+
+            if (pixel == 0)
+            {
+                p.type = SAND;
+                p.exists = true;
+                p.color = YELLOW;
+                p.wasUpdated = false;
+
+                p.rect = {static_cast<float>(x * SCALE),
+                          static_cast<float>(y * SCALE), SCALE, SCALE};
+            }
+        }
+    }
+}
+
 int main()
 {
+    std::vector<Particle> grid(GRID_WIDTH * GRID_HEIGHT);
+
     int currentFrame = 1;
 
-    BMP bmp(framePath(currentFrame).c_str());
+    BMP frame(framePath(currentFrame).c_str());
 
-    int width = bmp.infoHeader.width;
-    int height = bmp.infoHeader.height;
-    int channels = bmp.infoHeader.bitCount / 8;
+    frame.toGrayScale();
+    frame.toThreshold();
 
-    InitWindow(width * CELL_SIZE, height * CELL_SIZE, "Bad Apple");
+    loadFrameToGrid(frame, grid);
+
+    InitWindow(WIDTH, HEIGHT, "Bad Apple Sandbox");
 
     SetTargetFPS(60);
 
@@ -57,12 +103,16 @@ int main()
 
             if (std::filesystem::exists(path))
             {
-                bmp = BMP(path.c_str());
+                BMP next(path.c_str());
+
+                next.toGrayScale();
+                next.toThreshold();
+
+                loadFrameToGrid(next, grid);
             }
             else
             {
                 currentFrame = 1;
-                bmp = BMP(framePath(currentFrame).c_str());
             }
         }
 
@@ -70,29 +120,7 @@ int main()
 
         ClearBackground(BLACK);
 
-        for (int y = 0; y < height; y++)
-        {
-            int flippedY = height - 1 - y;
-
-            for (int x = 0; x < width; x++)
-            {
-                int index = (flippedY * width + x) * channels;
-
-                uint8_t b = bmp.data[index + 0];
-                uint8_t g = bmp.data[index + 1];
-                uint8_t r = bmp.data[index + 2];
-
-                uint8_t gray =
-                    static_cast<uint8_t>(0.299f * r + 0.587f * g + 0.114f * b);
-
-                uint8_t pixel = gray >= 127 ? 255 : 0;
-
-                DrawRectangle(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE,
-                              CELL_SIZE, pixel ? WHITE : BLACK);
-            }
-        }
-
-        DrawText(TextFormat("Frame: %d", currentFrame), 10, 10, 20, RED);
+        drawParticles(grid);
 
         EndDrawing();
     }
