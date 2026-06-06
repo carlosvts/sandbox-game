@@ -1,35 +1,77 @@
-# Nome do executável final
-TARGET = sandbox
+# Executáveis
+GAME_TARGET = sandbox
+BADAPPLE_TARGET = badapple
 
 # Compiler
 CXX = g++
 
-# Flags 
-CXXFLAGS = -std=c++17 -Wall -Wextra -I.
+# Flags
+CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude
 
-# source
-SRCS = main.cpp game.cpp
-
-# objects
-OBJS = $(SRCS:.cpp=.o)
-
-# Flags  Raylib
+# Raylib
 LDFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
-# compile
-$(TARGET): $(OBJS)
-	$(CXX) $(OBJS) -o $(TARGET) $(LDFLAGS)
+# --------------------
+# Sandbox
+# --------------------
 
-# .cpp into .o
-%.o: %.cpp game.hpp utils.hpp
+GAME_SRCS = \
+	src/main.cpp \
+	src/game.cpp
+
+GAME_OBJS = $(GAME_SRCS:.cpp=.o)
+
+# --------------------
+# Bad Apple Tool
+# --------------------
+
+BADAPPLE_SRCS = \
+	tools/badapple.cpp
+
+BADAPPLE_OBJS = $(BADAPPLE_SRCS:.cpp=.o)
+
+# --------------------
+# Build all
+# --------------------
+
+all: $(GAME_TARGET) $(BADAPPLE_TARGET)
+
+# --------------------
+# Sandbox
+# --------------------
+
+$(GAME_TARGET): $(GAME_OBJS)
+	$(CXX) $(GAME_OBJS) -o $(GAME_TARGET) $(LDFLAGS)
+
+# --------------------
+# Bad Apple
+# --------------------
+
+$(BADAPPLE_TARGET): $(BADAPPLE_OBJS)
+	$(CXX) $(BADAPPLE_OBJS) -o $(BADAPPLE_TARGET) $(LDFLAGS)
+
+# --------------------
+# Generic object rule
+# --------------------
+
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# clear binary
+# --------------------
+# Convenience targets
+# --------------------
+
+run: $(GAME_TARGET)
+	./$(GAME_TARGET)
+
+run-badapple: $(BADAPPLE_TARGET)
+	./$(BADAPPLE_TARGET)
+
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f \
+		$(GAME_OBJS) \
+		$(BADAPPLE_OBJS) \
+		$(GAME_TARGET) \
+		$(BADAPPLE_TARGET)
 
-# compile and run
-run: $(TARGET)
-	./$(TARGET)
-
-.PHONY: clean run
+.PHONY: all clean run run-badapple
